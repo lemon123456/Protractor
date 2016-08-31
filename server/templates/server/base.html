@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  {% load staticfiles %}
+  <title>Servers</title>
+  <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+  <script type="text/javascript" src="{% static 'js/angular.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/ngMask.min.js' %}"></script>
+  <style>
+    body {
+      padding-top: 20px;
+      padding-bottom: 20px;
+    }    
+
+      .navbar {
+        margin-bottom: 20px;
+    }
+
+    .form-inline{
+      margin-bottom: 15px;
+      margin-left: 15px;
+    }
+    .btn-black{
+    	color: #fff;
+    	background-color: #373a3c;
+    	border-color: #373a3c;
+    }
+</style>
+  {% block head %}
+  {% endblock %}
+</head>
+<body ng-app='servers'>
+  <div class="container">
+    {% include 'server/header/header.html'%}
+    {% block content %}
+    {% endblock %}
+  </div>
+</body>
+</html>

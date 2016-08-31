@@ -1,0 +1,110 @@
+{% extends 'server/base.html' %}
+{% block head %}
+ <script type="text/javascript">
+   mod = angular.module("servers", ['ngMask']);
+   mod.controller("listServer", function($scope, $http){
+      $scope.instance = {}
+      $scope.loadInstances = function(){
+         $http.get('/api/instance/list', {params: $scope.instance}).success(function(data){
+           $scope.instances = data
+         });
+      }
+
+      var loadSystem = function(){
+         $http.get('/api/system/list').success(function(data){
+           $scope.systems = data
+         });
+      }
+
+      var loadHd = function(){
+         $http.get('/api/hd/list').success(function(data){
+           $scope.hard_disks = data
+         });
+      }
+      
+      $scope.reset = function(){
+        $scope.instance = {}
+        $scope.loadInstances();
+      }
+
+      $scope.setOrder = function(){
+        if ($scope.instance.ordering == '-price'){
+          $scope.instance.ordering = 'price';
+        }else{
+          $scope.instance.ordering = '-price';
+        }
+        $scope.loadInstances();
+      }
+
+      $scope.getInstanceLength = function(instance){
+        if (instance.amount_of_cpu || instance.amount_of_memory || instance.hd || instance.system){
+          return true
+        }
+        return false
+      }
+
+      $scope.loadInstances();
+      loadHd();
+      loadSystem();
+   })
+ </script>
+{% endblock %}
+{% block content %}
+ {% verbatim %}
+  <div class="jumbotron" ng-controller='listServer'>
+     <div class="row">
+      <form class="form-inline">
+        <div class="form-group">
+          <input type="text" class="form-control" name="amount_of_cpu" placeholder="CPU (Nº)" ng-model="instance.amount_of_cpu" mask="9" repeat="4">
+        </div>
+        <div class="form-group">
+          <input type="text" class="form-control" name="amount_of_memory" placeholder="Memory (GB)" ng-model="instance.amount_of_memory">
+        </div>
+        <div class="form-group">
+          <select class="c-select" name="hd" ng-model="instance.hd">
+             <option selected value="">Hard disk (GB)</option>
+             <option value="{{ hd.id }}" ng-repeat="hd in hard_disks">{{hd.amount_of_hd}} {{ hd.hd_type }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <select class="c-select" name="system" ng-model="instance.system">
+             <option selected value="">System Operation</option>
+             <option value="{{ system.id }}" ng-repeat="system in systems">{{ system.name }}</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" ng-click="loadInstances()" ng-disabled="!getInstanceLength(instance)">Filter</button>
+        <button class="btn btn-primary" ng-click="reset()">Reset</button>
+      </form>
+      </div>
+      <table class="table table-striped">
+         <thead class="thead-inverse">
+           <tr>
+             <th>#</th>
+             <th>Instance</th>
+             <th>Provider</th>
+             <th>System</th>
+             <th>CPU</th>
+             <th>Memory (GB)</th>
+             <th>HD (GB)</th>
+             <th><button class="btn btn-primary" ng-click="setOrder()">Price</button></th>
+           </tr>
+         </thead>
+         <tbody>
+           <tr ng-repeat="instance in instances">
+            <th scope="row">{{ instance.id }}</th>
+            <td>{{ instance.name }}</td>
+            <td>{{ instance.provider.name }}</td>
+            <td>{{ instance.system.name }}</td>
+            <td>{{ instance.amount_of_cpu }}</td>
+            <td>{{ instance.amount_of_memory }}</td>
+            <td>{{ instance.hd.amount_of_hd }} {{ instance.hd.hd_type }}</td>
+            <td>{{ instance.price }}</td>
+           </tr>
+         </tbody>
+    </table>
+    <div class="row" ng-show="!instances.length"> 
+      <div class="col-md-3 col-md-offset-5"><h6>No results</h6></div>
+    </div>
+  </div>
+ {% endverbatim %}
+{% endblock %}
